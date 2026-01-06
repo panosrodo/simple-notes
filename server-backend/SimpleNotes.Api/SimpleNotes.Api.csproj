@@ -32,7 +32,6 @@
     <Folder Include="Models\" />
     <Folder Include="Exceptions\" />
     <Folder Include="Middleware\" />
-    <Folder Include="Security\" />
     <Folder Include="Repositories\" />
     <Folder Include="Services\" />
   </ItemGroup>
