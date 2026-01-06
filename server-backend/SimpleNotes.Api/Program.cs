@@ -1,4 +1,6 @@
 
+using Microsoft.EntityFrameworkCore;
+
 namespace SimpleNotes.Api
 {
     public class Program
@@ -6,6 +8,11 @@ namespace SimpleNotes.Api
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            // Configure DbContext with SQL Server
+            var connString = builder.Configuration.GetConnectionString("DefaultConnection");
+            builder.Services.AddDbContext<Data.AppDBContext>(options =>
+                options.UseSqlServer(connString));
 
             // Add services to the container.
 
