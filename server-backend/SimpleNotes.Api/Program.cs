@@ -1,5 +1,6 @@
 
 using Microsoft.EntityFrameworkCore;
+using SimpleNotes.Api.Middleware;
 
 namespace SimpleNotes.Api
 {
@@ -31,6 +32,8 @@ namespace SimpleNotes.Api
             }
 
             app.UseHttpsRedirection();
+
+            app.UseMiddleware<ErrorHandlerMiddleware>();
 
             app.UseAuthorization();
 
