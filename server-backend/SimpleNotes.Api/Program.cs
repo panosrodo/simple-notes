@@ -1,5 +1,7 @@
 
 using Microsoft.EntityFrameworkCore;
+using Serilog;
+using SimpleNotes.Api.Configuration;
 using SimpleNotes.Api.Middleware;
 
 namespace SimpleNotes.Api
@@ -21,6 +23,12 @@ namespace SimpleNotes.Api
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+            builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MapperConfig>());
+            builder.Host.UseSerilog((ctx, lc) =>
+                lc.ReadFrom.Configuration(ctx.Configuration));
+
+            builder.Services.AddTransient<ErrorHandlerMiddleware>();
 
             var app = builder.Build();
 
