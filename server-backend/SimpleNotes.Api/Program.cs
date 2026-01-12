@@ -6,6 +6,8 @@ using Microsoft.OpenApi.Models;
 using Serilog;
 using SimpleNotes.Api.Configuration;
 using SimpleNotes.Api.Middleware;
+using SimpleNotes.Api.Repositories;
+using SimpleNotes.Api.Repositories.Interfaces;
 using SimpleNotes.Api.Services;
 using SimpleNotes.Api.Services.Interfaces;
 using System.Text;
@@ -68,6 +70,10 @@ namespace SimpleNotes.Api
 
             // Authorization (roles / policies)
             builder.Services.AddAuthorization();
+
+            // Repositories
+            builder.Services.AddScoped<INoteRepository, NoteRepository>();
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
 
             // Application services
             builder.Services.AddScoped<IAuthService, AuthService>();
