@@ -1,88 +1,59 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using SimpleNotes.Api.Controllers;
-using SimpleNotes.Api.Data;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SimpleNotes.Api.DTOs;
-using SimpleNotes.Api.Exceptions;
+using SimpleNotes.Api.Services.Interfaces;
 
-namespace SimpleNotes.Api.Controllers
+namespace SimpleNotes.Api.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+[Authorize]
+public class NoteController : ControllerBase
 {
-    public class NotesController : BaseController
+    private readonly INoteService _noteService;
+
+    public NoteController(INoteService noteService)
     {
-        public NotesController(AppDBContext db, AutoMapper.IMapper mapper)
-            : base(db, mapper)
-        {
-        }
+        _noteService = noteService;
+    }
 
-        // GET: api/notes/getall
-        [HttpGet]
-        public async Task<IActionResult> GetAll()
-        {
-            var notes = await Db.Notes
-                .AsNoTracking()
-                .ToListAsync();
+    // GET: api/note
+    [HttpGet]
+    public async Task<IActionResult> GetAll()
+    {
+        var notes = await _noteService.GetAllAsync();
+        return Ok(notes);
+    }
 
-            var result = Mapper.Map<List<NoteDTO>>(notes);
-            return Ok(result);
-        }
+    // GET: api/note/{id}
+    [HttpGet("{id:int}")]
+    public async Task<IActionResult> GetById(int id)
+    {
+        var note = await _noteService.GetByIdAsync(id);
+        return Ok(note);
+    }
 
-        // GET: api/notes/get/{id}
-        [HttpGet("{id:int}")]
-        public async Task<IActionResult> Get(int id)
-        {
-            var note = await Db.Notes
-                .AsNoTracking()
-                .FirstOrDefaultAsync(n => n.Id == id);
+    // POST: api/note
+    [HttpPost]
+    public async Task<IActionResult> Add([FromBody] AddNoteDTO dto)
+    {
+        var note = await _noteService.AddAsync(dto);
+        return CreatedAtAction(nameof(GetById), new { id = note.Id }, note);
+    }
 
-            if (note == null)
-                throw new EntityNotFoundException("Note", "Note not found");
+    // PUT: api/note/{id}
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> Update(int id, [FromBody] UpdateNoteDTO dto)
+    {
+        await _noteService.UpdateAsync(id, dto);
+        return NoContent();
+    }
 
-            var result = Mapper.Map<NoteDTO>(note);
-            return Ok(result);
-        }
-
-        // POST: api/notes/add
-        [HttpPost]
-        public async Task<IActionResult> Add([FromBody] AddNoteDTO dto)
-        {
-            var note = Mapper.Map<Note>(dto);
-
-            // προσωρινά hardcoded (μέχρι να μπει auth)
-            note.UserId = 1;
-
-            Db.Notes.Add(note);
-            await Db.SaveChangesAsync();
-
-            var result = Mapper.Map<NoteDTO>(note);
-            return CreatedAtAction(nameof(Get), new { id = note.Id }, result);
-        }
-
-        // PUT: api/notes/update/{id}
-        [HttpPut("{id:int}")]
-        public async Task<IActionResult> Update(int id, [FromBody] UpdateNoteDTO dto)
-        {
-            var note = await Db.Notes.FirstOrDefaultAsync(n => n.Id == id);
-            if (note == null)
-                throw new EntityNotFoundException("Note", "Note not found");
-
-            Mapper.Map(dto, note);
-            await Db.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        // DELETE: api/notes/delete/{id}
-        [HttpDelete("{id:int}")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var note = await Db.Notes.FirstOrDefaultAsync(n => n.Id == id);
-            if (note == null)
-                throw new EntityNotFoundException("Note", "Note not found");
-
-            Db.Notes.Remove(note);
-            await Db.SaveChangesAsync();
-
-            return NoContent();
-        }
+    // DELETE: api/note/{id}
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        await _noteService.DeleteAsync(id);
+        return NoContent();
     }
 }
