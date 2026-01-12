@@ -69,12 +69,16 @@ namespace SimpleNotes.Api
             // Authorization (roles / policies)
             builder.Services.AddAuthorization();
 
-            // Dependency Injection - Application services
+            // Application services
             builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<IUserService, UserService>();
 
-            // MVC Controllers
+            // MVC
             builder.Services.AddControllers();
 
+            // Infrastructure services
+            builder.Services.AddHttpContextAccessor();
+            
             // Swagger / OpenAPI
             builder.Services.AddEndpointsApiExplorer();
 
