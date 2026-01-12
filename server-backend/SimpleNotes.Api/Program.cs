@@ -72,6 +72,7 @@ namespace SimpleNotes.Api
             // Application services
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<INoteService, NoteService>();
 
             // MVC
             builder.Services.AddControllers();
