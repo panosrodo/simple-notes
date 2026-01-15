@@ -1,21 +1,21 @@
-import { BrowserRouter, Route, Routes } from "react-router";
-import Layout from "@/components/layout/Layout.tsx";
-import HomePage from "./components/pages/HomePage.tsx";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router";
+import Layout from "@/components/layout/Layout";
+import HomePage from "./components/pages/HomePage";
 
 function App() {
   return (
-    <>
-      <BrowserRouter>
-        <Routes>
-          <Route element={<Layout />}>
-          <Route index element={<HomePage />}>
-          </Route>
-          </Route>
-        </Routes> 
-      </BrowserRouter>
+    <BrowserRouter>
+      <Routes>
+        <Route element={<Layout />}>
+          {/* / */}
+          <Route index element={<Navigate to="/notes" replace />} />
 
-    </>
-  )
+          {/* /notes */}
+          <Route path="/notes" element={<HomePage />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
