@@ -1,33 +1,29 @@
-import type {LoginFields} from "@/schemas/login.ts";
+import type { LoginFields } from "@/schemas/login";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 export type LoginResponse = {
-  access_token: string;
-  token_type: string;
-}
+  token: string;
+};
 
-export async function login({username, password}: LoginFields): Promise<LoginResponse> {
-  const form = new URLSearchParams();
-  form.append("username", username);
-  form.append("password", password);
-
-  const res = await fetch(API_URL + "/login/access-token", {
+export async function login({ username, password }: LoginFields): Promise<LoginResponse> {
+  const res = await fetch(`${API_URL}/Auth/login`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: form.toString(),
-  })
-  if (!res.ok){
-    let detail = "Login failed";
-    try {
-      const data =  await res.json();
-      if ( typeof data?.detail === "string" ) detail = data.detail;
-    } catch (error){
-      console.log(error);
-    }
-    throw new Error(detail);
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, password }),
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(text || "Login failed");
   }
-  return await res.json();
+
+  const data = (await res.json()) as any;
+  const token = data?.token ?? data?.accessToken ?? data?.access_token;
+
+  if (typeof token !== "string") {
+    throw new Error("Login succeeded but token was missing in response");
+  }
+
+  return { token };
 }

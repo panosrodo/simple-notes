@@ -1,4 +1,4 @@
-import { getToken } from "./api.login.ts";
+import { getCookie } from "@/utils/cookies";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -20,7 +20,12 @@ export type CreateNotePayload = {
 export type UpdateNotePayload = Partial<CreateNotePayload>;
 
 function authHeaders() {
-  const token = getToken();
+  const token = getCookie("access_token");
+
+  if (!token) {
+    throw new Error("No auth token found. Please login.");
+  }
+
   return {
     "Content-Type": "application/json",
     Authorization: `Bearer ${token}`,
