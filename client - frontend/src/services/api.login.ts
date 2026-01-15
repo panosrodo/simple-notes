@@ -1,68 +1,33 @@
+import type {LoginFields} from "@/schemas/login.ts";
+
 const API_URL = import.meta.env.VITE_API_URL;
 
-export type LoginFields = {
-  email: string;
-  password: string;
-};
+export type LoginResponse = {
+  access_token: string;
+  token_type: string;
+}
 
-export type RegisterFields = {
-  email: string;
-  password: string;
-};
+export async function login({username, password}: LoginFields): Promise<LoginResponse> {
+  const form = new URLSearchParams();
+  form.append("username", username);
+  form.append("password", password);
 
-export type AuthResponse = {
-  token: string;
-};
-
-export async function login(data: LoginFields): Promise<AuthResponse> {
-  const res = await fetch(`${API_URL}/api/Auth/login`, {
+  const res = await fetch(API_URL + "/login/access-token", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
-
-  if (!res.ok) {
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: form.toString(),
+  })
+  if (!res.ok){
     let detail = "Login failed";
     try {
-      const err = await res.json();
-      if (typeof err?.message === "string") detail = err.message;
-    } catch {}
+      const data =  await res.json();
+      if ( typeof data?.detail === "string" ) detail = data.detail;
+    } catch (error){
+      console.log(error);
+    }
     throw new Error(detail);
   }
-
-  const json = (await res.json()) as AuthResponse;
-
-  // αποθήκευση token
-  localStorage.setItem("token", json.token);
-
-  return json;
-}
-
-export async function register(data: RegisterFields): Promise<AuthResponse> {
-  const res = await fetch(`${API_URL}/api/Auth/register`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
-
-  if (!res.ok) {
-    let detail = "Register failed";
-    try {
-      const err = await res.json();
-      if (typeof err?.message === "string") detail = err.message;
-    } catch {}
-    throw new Error(detail);
-  }
-
-  const json = (await res.json()) as AuthResponse;
-  localStorage.setItem("token", json.token);
-  return json;
-}
-
-export function logout() {
-  localStorage.removeItem("token");
-}
-
-export function getToken() {
-  return localStorage.getItem("token");
+  return await res.json();
 }
