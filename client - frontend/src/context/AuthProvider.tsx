@@ -1,33 +1,40 @@
 import { useEffect, useState } from "react";
 import type { LoginFields } from "@/schemas/login";
+import type { RegisterFields } from "@/schemas/register";
 import { login } from "@/services/api.login";
+import { register as registerApi } from "@/services/api.register";
 import { deleteCookie, getCookie, setCookie } from "@/utils/cookies";
 import { AuthContext } from "@/context/AuthContext";
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [accessToken, setAccessToken] = useState<string | null>(null);
-  const [tenantId, setTenantId] = useState<string | null>(null); // μένει null
+  const [tenantId, setTenantId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const token = getCookie("access_token");
     setAccessToken(token ?? null);
-    setTenantId(null); // δεν έχουμε tenant στο backend
+    setTenantId(null);
     setLoading(false);
   }, []);
 
   const loginUser = async (fields: LoginFields) => {
-    const res = await login(fields); // επιστρέφει { token }
+    const res = await login(fields);
 
     setCookie("access_token", res.token, {
       expires: 1,
       sameSite: "Lax",
-      secure: false, // production → true
+      secure: false, // production -> true
       path: "/",
     });
 
     setAccessToken(res.token);
     setTenantId(null);
+  };
+
+  // ✅ register μόνο δημιουργεί χρήστη (χωρίς token)
+  const registerUser = async (fields: RegisterFields) => {
+    await registerApi(fields);
   };
 
   const logoutUser = () => {
@@ -41,8 +48,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       value={{
         isAuthenticated: !!accessToken,
         accessToken,
-        tenantId,        // 👈 υπάρχει αλλά απλά δεν χρησιμοποιείται
+        tenantId,
         loginUser,
+        registerUser,
         logoutUser,
         loading,
       }}

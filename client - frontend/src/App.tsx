@@ -1,10 +1,11 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router";
-import Layout from "@/components/layout/Layout";
-import HomePage from "@/components/pages/HomePage";
-import LoginPage from "@/components/pages/LoginPage";
-import ProtectedRoute from "@/components/ProtectedRoute";
-import { AuthProvider } from "@/context/AuthProvider";
-import { Toaster } from "sonner";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router"
+import Layout from "@/components/layout/Layout"
+import HomePage from "@/components/pages/HomePage"
+import LoginPage from "@/components/pages/LoginPage"
+import RegisterPage from "@/components/pages/RegisterPage"
+import ProtectedRoute from "@/components/ProtectedRoute"
+import { AuthProvider } from "@/context/AuthProvider"
+import { Toaster } from "sonner"
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
           <Route element={<Layout />}>
             <Route index element={<Navigate to="/notes" replace />} />
             <Route path="login" element={<LoginPage />} />
+            <Route path="register" element={<RegisterPage />} />
 
             <Route path="notes" element={<ProtectedRoute />}>
               <Route index element={<HomePage />} />
@@ -24,7 +26,7 @@ function App() {
 
       <Toaster richColors />
     </AuthProvider>
-  );
+  )
 }
 
-export default App;
+export default App
